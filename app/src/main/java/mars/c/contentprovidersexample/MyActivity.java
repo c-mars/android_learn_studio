@@ -9,6 +9,7 @@ import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import java.io.IOException;
 
@@ -20,11 +21,25 @@ public class MyActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my);
 
+        TextView contactView = (TextView) findViewById(R.id.textView);
+
         try {
-            Log.d("test", Environment.getDataDirectory().getCanonicalPath().toString());
+            contactView.append(Environment.getDataDirectory().getCanonicalPath().toString());
+
+            Cursor cursor = getContacts();
+
+            while (cursor.moveToNext()) {
+
+                String displayName = cursor.getString(cursor
+                        .getColumnIndex(ContactsContract.Data.DISPLAY_NAME));
+                contactView.append("Name: ");
+                contactView.append(displayName);
+                contactView.append("\n");
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
+
     }
 
 
@@ -57,7 +72,7 @@ public class MyActivity extends Activity {
         String[] selectionArgs = null;
         String sortOrder = ContactsContract.Contacts.DISPLAY_NAME + " COLLATE LOCALIZED ASC";
 
-        return managedQuery(uri, projection, selection, selectionArgs,
+        return getBaseContext().getContentResolver().query(uri, projection, selection, selectionArgs,
                 sortOrder);
     }
 }
